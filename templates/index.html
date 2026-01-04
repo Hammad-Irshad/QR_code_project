@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>QR Code Generator</title>
     <style>
@@ -11,19 +12,22 @@
             align-items: center;
             height: 100vh;
         }
+
         .box {
             background: white;
             padding: 25px;
             border-radius: 8px;
             width: 320px;
             text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         input {
             width: 93%;
             padding: 10px;
             margin: 10px 0;
         }
+
         button {
             padding: 10px;
             width: 100%;
@@ -32,36 +36,51 @@
             border: none;
             cursor: pointer;
         }
+
         img {
             margin-top: 15px;
             width: 200px;
         }
-        .success { color: green; }
-        .error { color: red; }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
     </style>
 </head>
+
 <body>
+    <div style="text-align:center; padding-bottom: 50px; padding-top: 100px; ">
+        <img src="{{ url_for('static', filename='QRbit_logo.svg') }}" alt="QR Code Generator Logo"
+            style="width:120px; " />
+        <h1>QRbit</h1>
 
-<div class="box">
-    <h2>QRbit</h2>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <p class="{{ category }}">{{ message }}</p>
-      {% endfor %}
-    {% endwith %}
 
-    <form method="POST">
-        <input type="text" name="text" placeholder="Enter link or text" required>
-        <button type="submit">Generate QR</button>
-    </form>
+        <div class="box">
+            <h2>QR Code Generator</h2>
 
-    {% if filename %}
-        <img src="{{ url_for('static', filename='qr/' + filename) }}">
-        <br><br>
-        <a href="/download/{{ filename }}">Download QR</a>
-    {% endif %}
-</div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <p class="{{ category }}">{{ message }}</p>
+            {% endfor %}
+            {% endwith %}
 
+            <form method="POST">
+                <input type="text" name="text" placeholder="Enter link or text" required>
+                <button type="submit">Generate QR</button>
+            </form>
+
+            {% if filename %}
+            <img src="{{ url_for('static', filename='qr/' + filename) }}">
+            <br><br>
+            <a href="/download/{{ filename }}">Download QR</a>
+            {% endif %}
+        </div>
+    </div>
 </body>
+
 </html>
