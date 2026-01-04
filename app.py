@@ -56,49 +56,42 @@
 
 #####################################################################################################
 
-
-import tkinter as tk
-from tkinter import ttk, messagebox
+from flask import Flask, render_template, request, send_from_directory, flash
 import pyqrcode
+import os
+import re
 
-def generate_qr():
-    # Get the text from the entry widget
-    text = entry.get()
-    
-    # Check if the input is empty
-    if not text:
-        messagebox.showerror("Error", "Please enter a link or text")
-        return
-    
-    # Generate QR code
-    qr = pyqrcode.create(text)
-    
-    # Save the QR code as PNG with filename based on input text
-    filename = f"{text}.png"
-    qr.png(filename, scale=8)
-    
-    messagebox.showinfo("Success", f"QR code generated successfully and saved as {filename}")
+app = Flask(__name__)
+app.secret_key = "change-this-secret"
 
-# Create the main window
-root = tk.Tk()
-root.title("QR Code Generator")
-root.geometry("300x200")
+QR_FOLDER = "static/qr"
+os.makedirs(QR_FOLDER, exist_ok=True)
 
-# Create and configure the style
-style = ttk.Style()
-style.configure("TButton", foreground="black", background="lightblue", font=("Helvetica", 10))
+@app.route("/", methods=["GET", "POST"])
+def index():
+    filename = None
 
-# Create and configure the label
-label = ttk.Label(root, text="Enter link or text:")
-label.pack(pady=10)
+    if request.method == "POST":
+        text = request.form.get("text", "").strip()
 
-# Create and configure the entry widget
-entry = ttk.Entry(root, width=40)
-entry.pack()
+        if not text:
+            flash("Please enter a link or text", "error")
+            return render_template("index.html")
 
-# Create and configure the button
-button = ttk.Button(root, text="Generate QR Code", command=generate_qr)
-button.pack(pady=10)
+        # Make filename safe
+        safe_name = re.sub(r"[^a-zA-Z0-9_-]", "_", text)[:50]
+        filename = f"{safe_name}.svg"
 
-# Run the main event loop
-root.mainloop()
+        qr = pyqrcode.create(text)
+        qr.svg(os.path.join(QR_FOLDER, filename), scale=8)
+
+        flash("QR code generated successfully!", "success")
+
+    return render_template("index.html", filename=filename)
+
+@app.route("/download/<filename>")
+def download(filename):
+    return send_from_directory(QR_FOLDER, filename, as_attachment=True)
+
+if __name__ == "__main__":
+    app.run(debug=True)
